@@ -44,7 +44,8 @@ func (s *InfluxDBStorage) Flush() {
 // StoreTrade stores a trade record in InfluxDB
 func (s *InfluxDBStorage) StoreTrade(trade *models.Trade) error {
 	// Parse time
-	t, err := time.Parse(time.RFC3339Nano, trade.Time)
+	timeWithZone := trade.Time + "Z"
+	t, err := time.Parse(time.RFC3339Nano, timeWithZone)
 	if err != nil {
 		log.Printf("Failed to parse time: %v", err)
 		return err
@@ -104,7 +105,8 @@ func (s *InfluxDBStorage) StoreTrade(trade *models.Trade) error {
 // StoreOrderStatus stores an order status in InfluxDB
 func (s *InfluxDBStorage) StoreOrderStatus(orderStatus *models.OrderStatus) error {
 	// Parse time
-	t, err := time.Parse(time.RFC3339Nano, orderStatus.Time)
+	timeWithZone := orderStatus.Time + "Z"
+	t, err := time.Parse(time.RFC3339Nano, timeWithZone)
 	if err != nil {
 		log.Printf("Failed to parse time: %v", err)
 		return err

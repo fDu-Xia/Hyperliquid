@@ -2,7 +2,6 @@ package processor
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -111,7 +110,7 @@ func (p *RawProcessor) SetupFileWatcher() {
 // processDirData processes all data in a directory
 func (p *RawProcessor) processDirData(basePath string, processFunc func(string)) {
 	// Get date directories
-	dateDirs, err := ioutil.ReadDir(basePath)
+	dateDirs, err := os.ReadDir(basePath)
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)
 	}
@@ -122,7 +121,7 @@ func (p *RawProcessor) processDirData(basePath string, processFunc func(string))
 		}
 
 		datePath := filepath.Join(basePath, dateDir.Name())
-		hourDirs, err := ioutil.ReadDir(datePath)
+		hourDirs, err := os.ReadDir(datePath)
 		if err != nil {
 			log.Printf("Failed to read hour directory: %v", err)
 			continue
@@ -137,7 +136,7 @@ func (p *RawProcessor) processDirData(basePath string, processFunc func(string))
 			if hourDir.IsDir() {
 				// node_trades structure
 				hourPath := filepath.Join(datePath, hourDir.Name())
-				files, err := ioutil.ReadDir(hourPath)
+				files, err := os.ReadDir(hourPath)
 				if err != nil {
 					log.Printf("Failed to read files: %v", err)
 					continue
@@ -161,7 +160,7 @@ func (p *RawProcessor) processDirData(basePath string, processFunc func(string))
 
 // processFile processes a single data file
 func (p *RawProcessor) processFile(filePath string, processFunc func(string)) {
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Printf("Failed to read file %s: %v", filePath, err)
 		return
@@ -184,7 +183,10 @@ func (p *RawProcessor) processTrade(line string) {
 		return
 	}
 
-	p.storage.StoreTrade(&trade)
+	err := p.storage.StoreTrade(&trade)
+	if err != nil {
+		log.Printf("Failed to store trade: %v", err)
+	}
 }
 
 // processOrderStatus processes an order status data line
@@ -195,7 +197,10 @@ func (p *RawProcessor) processOrderStatus(line string) {
 		return
 	}
 
-	p.storage.StoreOrderStatus(&orderStatus)
+	err := p.storage.StoreOrderStatus(&orderStatus)
+	if err != nil {
+		log.Printf("Failed to store order status: %v", err)
+	}
 }
 
 // processFileWithRetry processes a file with retry logic
@@ -210,7 +215,7 @@ func (p *RawProcessor) processFileWithRetry(filePath string, processFunc func(st
 			continue
 		}
 
-		content, err := ioutil.ReadFile(filePath)
+		content, err := os.ReadFile(filePath)
 		if err != nil {
 			log.Printf("Failed to read file, retrying after delay %s: %v", filePath, err)
 			time.Sleep(retryDelay)

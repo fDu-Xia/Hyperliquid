@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Initialize configuration
-	cfg := config.NewDefaultConfig()
+	cfg := config.NewConfig()
 
 	// Initialize InfluxDB storage
 	store := storage.NewInfluxDBStorage(cfg)
