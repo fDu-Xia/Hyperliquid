@@ -80,13 +80,13 @@ func (s *InfluxDBStorage) StoreTrade(trade *models.Trade) error {
 		userPoint := influxdb2.NewPoint(
 			"trade_side_info",
 			map[string]string{
-				"coin":     trade.Coin,
-				"side":     trade.Side,
-				"hash":     trade.Hash,
-				"user":     info.User,
-				"order_id": strconv.FormatInt(info.OrderID, 10),
+				"coin": trade.Coin,
 			},
 			map[string]interface{}{
+				"side":       trade.Side,
+				"hash":       trade.Hash,
+				"user":       info.User,
+				"order_id":   strconv.FormatInt(info.OrderID, 10),
 				"start_pos":  startPos,
 				"has_twap":   info.TwapID != nil,
 				"has_cloid":  info.ClOrderID != nil,
@@ -94,7 +94,6 @@ func (s *InfluxDBStorage) StoreTrade(trade *models.Trade) error {
 			},
 			t,
 		)
-
 		s.writeAPI.WritePoint(userPoint)
 	}
 
@@ -122,15 +121,15 @@ func (s *InfluxDBStorage) StoreOrderStatus(orderStatus *models.OrderStatus) erro
 	p := influxdb2.NewPoint(
 		"order_statuses",
 		map[string]string{
-			"user":          orderStatus.User,
-			"status":        orderStatus.Status,
-			"coin":          orderStatus.Order.Coin,
-			"side":          orderStatus.Order.Side,
-			"order_id":      strconv.FormatInt(orderStatus.Order.OrderID, 10),
-			"order_type":    orderStatus.Order.OrderType,
-			"time_in_force": orderStatus.Order.TimeInForce,
+			"coin": orderStatus.Order.Coin,
 		},
 		map[string]interface{}{
+			"user":             orderStatus.User,
+			"status":           orderStatus.Status,
+			"side":             orderStatus.Order.Side,
+			"order_type":       orderStatus.Order.OrderType,
+			"time_in_force":    orderStatus.Order.TimeInForce,
+			"order_id":         orderStatus.Order.OrderID,
 			"limit_price":      limitPrice,
 			"size":             size,
 			"orig_size":        origSize,
@@ -139,8 +138,8 @@ func (s *InfluxDBStorage) StoreOrderStatus(orderStatus *models.OrderStatus) erro
 			"trigger_price":    triggerPrice,
 			"is_position_tpsl": orderStatus.Order.IsPositionTpsl,
 			"reduce_only":      orderStatus.Order.ReduceOnly,
-			"children_count":   len(orderStatus.Order.Children),
-			"has_cloid":        orderStatus.Order.ClOrderID != nil,
+			"children":         orderStatus.Order.Children,
+			"cloid":            orderStatus.Order.ClOrderID,
 		},
 		t,
 	)
